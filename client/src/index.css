@@ -1,0 +1,10 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+.panel-heading {
+   background-color: #20315A !important;
+   color : white;
+}
