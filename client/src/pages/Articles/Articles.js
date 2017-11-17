@@ -16,19 +16,64 @@ class Articles extends Component {
     articles: [],
     savedarticles: [],
     wordtoguess: "",
-    blanks: ""
+    blanks: "",
+    // This is the array of user entries
+    userGuesses: [],
   };
 
-  // Selection of valid characters for the game
-  characSet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
-    'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-    'w', 'x', 'y', 'z',  " "]
+
+
+
+
+  //https://stackoverflow.com/questions/10710345/finding-all-indexes-of-a-specified-character-within-a-string
+
+  // creating a keystroke function
+  _handleKeyDown = (event) => {
+    let alreadyGuessed = this.state.userGuesses
+    let userGuess = event.key.toLowerCase();
+    console.log(userGuess);
+    let BACKSPACE = 8;
+
+    // Selection of valid characters for the game
+    let characSet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
+      'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+      'w', 'x', 'y', 'z', " "]
+
+    // This builds the array of userGuesses
+
+    // First option:Check if it was the backspace key pressed
+    if (userGuess === 'backspace') {
+      alreadyGuessed = [];
+      console.log(alreadyGuessed);
+      // Second option: has the user already selected this character?
+    } else {
+      if (alreadyGuessed.indexOf(userGuess) >= 0) {
+        console.log("Repeated entry, entry ignored");
+        // Third option: is the character valid (in characSet)?
+      } else if (characSet.indexOf(userGuess) === -1) {
+        console.log("Invalid character entry!")
+      } else {
+        alreadyGuessed.push(userGuess);
+        console.log(alreadyGuessed);
+      }
+    }
+
+  }
+
+  componentWillMount() {
+    document.addEventListener(
+      "keydown",
+      this._handleKeyDown.bind(this)
+    )
+  }
 
   // Initial load of saved articles
   componentDidMount() {
     this.loadSavedArticles("");
     this.loadWordToGuess();
   }
+
+
 
   // code to get saved articles
   loadSavedArticles = () => {
@@ -55,11 +100,26 @@ class Articles extends Component {
   //loads a random entry from a selected category
   //for testing purposes now, using a static entry
   loadWordToGuess = () => {
-    let words = /*["flamingo", "ocelot", "pistol shrimp"]*/ ["pistol shrimp"]
+    let words = /*["flamingo", "ocelot", "pistol shrimp"]*/["pistol shrimp"]
     let word = words[Math.floor(Math.random() * words.length)]
-    let wordsplit = word.split("")
-    console.log(wordsplit)
-    this.setState({ wordtoguess: word })
+    let wordArray = word.split("");
+    console.log(wordArray);
+    //declare an empty array for us to push our "_" symbols to
+    let currentlyPicked = []
+
+    // fill the currentlyPicked array with either underscores or spaces
+    for (let i = 0; i < wordArray.length; i++) {
+      if (wordArray[i] !== " ") {
+        currentlyPicked.push("_")
+      } else {
+        currentlyPicked.push(" ")
+      }
+    }
+
+    console.log(currentlyPicked)
+    //currentlyPicked = wordArray.fill("_");
+    this.setState({ wordtoguess: word });
+    this.setState({ displayedword: currentlyPicked });
   }
 
 
@@ -129,7 +189,7 @@ class Articles extends Component {
               <div className="panel-body" id="well-section">
                 <List>
                   <ListItem>
-                    <h3>{this.state.wordtoguess}</h3>
+                    <h3>{this.state.displayedword}</h3>
                   </ListItem>
                 </List>
               </div>
