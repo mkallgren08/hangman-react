@@ -16,7 +16,7 @@ class Articles extends Component {
     articles: [],
     savedarticles: [],
     wordtoguess: "",
-    blanks: "",
+    displayedword: "",
     // This is the array of user entries
     userGuesses: [],
   };
@@ -43,7 +43,7 @@ class Articles extends Component {
 
     // First option:Check if it was the backspace key pressed
     if (userGuess === 'backspace') {
-      alreadyGuessed = [];
+      this.setState({ userGuesses: [] });
       console.log(alreadyGuessed);
       // Second option: has the user already selected this character?
     } else {
@@ -52,14 +52,84 @@ class Articles extends Component {
         // Third option: is the character valid (in characSet)?
       } else if (characSet.indexOf(userGuess) === -1) {
         console.log("Invalid character entry!")
+        // Fourth option: everything is valid and the character selected gets pushed
+        // to an array logging the choice and checking if it is in the wordtoguess.
       } else {
         alreadyGuessed.push(userGuess);
         console.log(alreadyGuessed);
+        this.checkAgainstWord(userGuess);
+        this.switchOutUnderscores(userGuess);
       }
     }
 
   }
 
+  checkAgainstWord = (userGuess) => {
+    if (this.state.wordtoguess.indexOf(userGuess) == -1) {
+      console.log('The selected character "' + userGuess + '" is not in the hidden word!')
+    } else {
+      console.log('The selected character "' + userGuess + '" *is* in the hidden word!')
+    }
+  }
+
+  switchOutUnderscores = (userGuess) => {
+    let wordToGuess = this.state.wordtoguess;
+
+    //This checks if the userGuess is found in the word to pick
+
+    //If it isn't, you lose a life:
+    if (wordToGuess.indexOf(userGuess) == -1) {
+      console.log("Oh shoot, you've lost a life!")
+    }
+
+    //If it is in the word, it will switch out the underscore with the userGuess.
+    else {
+      let indeces = [];
+      for (var i = 0; i < wordToGuess.length; i++) {
+        if (wordToGuess[i] === userGuess) {
+          indeces.push(i)
+        };
+      }
+      console.log("Indeces of letter picked: " + indeces)
+
+      let tempdisplayedWord = this.state.displayedword
+
+      for (var j = 0; j < indeces.length; j++) {
+        tempdisplayedWord.splice(indeces[j], 1, userGuess)
+      }
+
+      console.log(tempdisplayedWord);
+      this.setState({ displayedword: tempdisplayedWord });
+
+      this.checkForWin(this.state.displayedword);
+
+
+      // console.log(indeces);
+
+    }
+  }
+
+  checkForWin = (currentDisplay) => {
+    if (currentDisplay.indexOf("_") === -1) {
+      console.log("You win!")
+      this.setState(
+        {
+          wordtoguess: "",
+          displayedword: "",
+          userGuesses: [],
+        }
+      )
+      this.loadWordToGuess()
+    }
+  }
+
+  //==============================================================
+  //==============================================================
+  // Component Mounting Functions
+  //==============================================================
+
+
+  // This creates the keystroke-logger function which lets the user select letters
   componentWillMount() {
     document.addEventListener(
       "keydown",
@@ -100,7 +170,7 @@ class Articles extends Component {
   //loads a random entry from a selected category
   //for testing purposes now, using a static entry
   loadWordToGuess = () => {
-    let words = /*["flamingo", "ocelot", "pistol shrimp"]*/["pistol shrimp"]
+    let words = ["flamingo", "ocelot", "pistol shrimp", "cockatiel"]/*["pistol shrimp"]*/
     let word = words[Math.floor(Math.random() * words.length)]
     let wordArray = word.split("");
     console.log(wordArray);
