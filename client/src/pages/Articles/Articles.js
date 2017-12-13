@@ -236,6 +236,44 @@ class Articles extends Component {
             <Jumbotron>
               <h1>Hangman</h1>
             </Jumbotron>
+            <Row>
+              <Col size="md-6">
+                {/* Hangman Pic Goes Here */}
+                <h2> Hangman Pic Goes here </h2>
+              </Col>
+              <Col size="md-6">
+                <Row>
+                  <Col size="md-12">
+                    {/* Current Guesses */}
+                    <h2> List of current guesses </h2>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col size="md-12">
+                    {/* Lives left */}
+                    <h2> Lives left (this round) </h2>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col size="md-12">
+                    <Row>
+                      <Col size="md-6">
+                        {/* Wins */}
+                        <h2> Total Wins </h2>
+                      </Col>
+                      <Col size="md-6">
+                        {/* Losses */}
+                        <h2> Total Losses </h2>
+                      </Col>
+                    </Row>
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row>
+          <Col size="md-12">
             <div className="panel panel-primary">
               <div className="panel-heading">
                 <h3 className="panel-title"><strong><i className="fa fa-table"></i>  Word to Guess</strong></h3>
@@ -266,6 +304,7 @@ class Articles extends Component {
             </div>
           </Col>
         </Row>
+
         <Row>
           <Col size="md-12">
             <div className="panel panel-primary">
