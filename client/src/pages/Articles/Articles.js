@@ -19,6 +19,10 @@ class Articles extends Component {
     displayedword: "",
     // This is the array of user entries
     userGuesses: [],
+    userGuessesString: "",
+    lives: 5,
+    wins: 0,
+    losses: 0,
   };
 
 
@@ -29,7 +33,7 @@ class Articles extends Component {
 
   // creating a keystroke function
   _handleKeyDown = (event) => {
-    let alreadyGuessed = this.state.userGuesses
+    let alreadyGuessed = this.state.userGuesses;
     let userGuess = event.key.toLowerCase();
     console.log(userGuess);
     let BACKSPACE = 8;
@@ -70,6 +74,12 @@ class Articles extends Component {
     } else {
       console.log('The selected character "' + userGuess + '" *is* in the hidden word!')
     }
+
+    let guessList = this.state.userGuessesString;
+
+    guessList = guessList + userGuess + " ";
+
+    this.setState({userGuessesString: guessList})
   }
 
   switchOutUnderscores = (userGuess) => {
@@ -80,6 +90,12 @@ class Articles extends Component {
     //If it isn't, you lose a life:
     if (wordToGuess.indexOf(userGuess) == -1) {
       console.log("Oh shoot, you've lost a life!")
+      let livesLeft = this.state.lives;
+      livesLeft = livesLeft - 1;
+
+      this.setState({lives: livesLeft});
+      this.checkforLoss(livesLeft);
+    
     }
 
     //If it is in the word, it will switch out the underscore with the userGuess.
@@ -109,18 +125,35 @@ class Articles extends Component {
     }
   }
 
+  checkforLoss = (lives) => {
+    if (lives === 0){
+      let losses = this.state.losses;
+
+      this.setState({losses: losses + 1});
+      this.resetGame();
+    }
+  }
+
   checkForWin = (currentDisplay) => {
     if (currentDisplay.indexOf("_") === -1) {
       console.log("You win!")
-      this.setState(
-        {
-          wordtoguess: "",
-          displayedword: "",
-          userGuesses: [],
-        }
-      )
-      this.loadWordToGuess()
+      this.setState({wins: this.state.wins +1})
+
+      this.resetGame()
     }
+  }
+
+  resetGame = () => {
+    this.setState(
+      {
+        wordtoguess: "",
+        displayedword: "",
+        userGuesses: [],
+        userGuessesString: "",
+        lives: 5,
+      }
+    )
+    this.loadWordToGuess()
   }
 
   //==============================================================
@@ -139,21 +172,7 @@ class Articles extends Component {
 
   // Initial load of saved articles
   componentDidMount() {
-    this.loadSavedArticles("");
     this.loadWordToGuess();
-  }
-
-
-
-  // code to get saved articles
-  loadSavedArticles = () => {
-    API.getArticles()
-      .then(
-      res => {
-        this.setState({ savedarticles: res.data })
-      })
-      // console.log(res.data.response.docs);
-      .catch(err => console.log(err));
   };
 
 
@@ -236,42 +255,63 @@ class Articles extends Component {
             <Jumbotron>
               <h1>Hangman</h1>
             </Jumbotron>
-            <Row>
-              <Col size="md-6">
-                {/* Hangman Pic Goes Here */}
-                <h2> Hangman Pic Goes here </h2>
-              </Col>
-              <Col size="md-6">
+            <div className="panel panel-primary">
+              <div className="panel-heading">
+                <h3 className="panel-title"><strong><i className="fa fa-table"></i>  Stats </strong></h3>
+              </div>
+              <div className="panel-body">
                 <Row>
-                  <Col size="md-12">
-                    {/* Current Guesses */}
-                    <h2> List of current guesses </h2>
+                  <Col size="md-6">
+                    {/* Hangman Pic Goes Here */}
+                    <h2> Hangman Pic Goes here </h2>
                   </Col>
-                </Row>
-                <Row>
-                  <Col size="md-12">
-                    {/* Lives left */}
-                    <h2> Lives left (this round) </h2>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col size="md-12">
+                  <Col size="md-6">
                     <Row>
-                      <Col size="md-6">
-                        {/* Wins */}
-                        <h2> Total Wins </h2>
+                      <Col size="md-12">
+                        {/* Current Guesses */}
+                        <div className="panel panel-secondary">
+                          <div className="panel-heading">
+                            <h3 className="panel-title">
+                              <strong><i className="fa fa-table"></i> List of Current Guesses </strong>
+                            </h3>
+                          </div>
+                          <div className="panel-body">
+                            {this.state.userGuesses.length ? (
+                              <h4> {this.state.userGuessesString} </h4>
+                            ) : (
+                                <h3>Use Your Keyboard to Enter Guesses!</h3>
+                              )}
+                          </div>
+                        </div>
                       </Col>
-                      <Col size="md-6">
-                        {/* Losses */}
-                        <h2> Total Losses </h2>
+                    </Row>
+                    <Row>
+                      <Col size="md-12">
+                        {/* Lives left */}
+                        <h2> Lives left (this round): {this.state.lives} </h2>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col size="md-12">
+                        <Row>
+                          <Col size="md-6">
+                            {/* Wins */}
+                            <h2> Total Wins: {this.state.wins}</h2>
+                          </Col>
+                          <Col size="md-6">
+                            {/* Losses */}
+                            <h2> Total Losses: {this.state.losses} </h2>
+                          </Col>
+                        </Row>
                       </Col>
                     </Row>
                   </Col>
                 </Row>
-              </Col>
-            </Row>
+              </div>
+            </div>
+
           </Col>
-        </Row>
+        </Row >
         <Row>
           <Col size="md-12">
             <div className="panel panel-primary">
@@ -304,52 +344,6 @@ class Articles extends Component {
             </div>
           </Col>
         </Row>
-
-        <Row>
-          <Col size="md-12">
-            <div className="panel panel-primary">
-              <div className="panel-heading changeme">
-                <h3 className="panel-title"><strong><i className="fa  fa-list-alt"></i>  Search Parameters</strong></h3>
-              </div>
-              <div className="panel-body">
-                <form>
-                  <label htmlFor="searchterm">Search Term:</label>
-                  <Input name="searchterm"
-                    value={this.state.searchterm}
-                    onChange={this.handleInputChange}
-                    placeholder="Search Term" />
-                  <label htmlFor="numberofrecords">Number of Records:</label>
-                  <select name="numberofrecords"
-                    value={this.state.numberofrecords}
-                    onChange={this.handleInputChange}
-                    className="form-control"
-                    id="num-records-select">
-                    <option value="1">1</option>
-                    <option value="5" >5</option>
-                    <option value="10">10</option>
-                  </select>
-                  <label htmlFor="startyear">Start Year (optional - must be 4 digit year):</label>
-                  <Input name="startyear"
-                    value={this.state.startyear}
-                    onChange={this.handleInputChange}
-                    placeholder="Start Year" />
-                  <label htmlFor="endyear">End Year (optional - must be 4 digit year):</label>
-                  <Input name="endyear"
-                    value={this.state.endyear}
-                    onChange={this.handleInputChange}
-                    placeholder="End Year" />
-                  <button type="submit"
-                    className="btn btn-default"
-                    onClick={this.handleFormSubmit}
-                    id="run-search"><i className="fa fa-search"></i> Search</button>
-                  {"     "}
-                  <button type="button" className="btn btn-default" id="clear-all"><i className="fa fa-trash"></i> Clear Results</button>
-                </form>
-              </div>
-            </div>
-          </Col>
-        </Row>
-        {/* Results */}
         <Row>
           <Col size="md-12">
             <div className="panel panel-primary">
@@ -412,7 +406,7 @@ class Articles extends Component {
             </div>
           </Col>
         </Row>
-      </Container>
+      </Container >
     );
   }
 }
