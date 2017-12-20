@@ -1,6 +1,11 @@
 import axios from "axios";
 
 export default {
+  //Get all animals
+  getBiodiversity: function(){
+    return axios.get("/api/biodiversity")
+  },
+
   // Gets all books
   getArticles: function() {
     return axios.get("/api/articles");

@@ -7,6 +7,7 @@ const App = () => (
   <div>
     <Route exact path="/" component={Articles} />
     <Route exact path="/articles" component={Articles} />
+    <Route exact path="/biodiversity" component={Articles} />
     <Route exact path="/articles/:id" component={Articles} />
     {/* <Articles /> */}
   </div>

@@ -25,12 +25,30 @@ app.use(routes);
 
 // Set up promises with mongoose
 mongoose.Promise = global.Promise;
+
+// Declare Mongoose Connection Parameters
+
+// "mongodb://heroku_cwf2cqkx:8vpi8pekalrvhlae96mahc4ktq@ds153494.mlab.com:53494/heroku_cwf2cqkx"
+
+const mongoConnect = 'mongodb://localhost/hangman_options' || process.env.MONGODB_URI
 // Connect to the Mongo DB
 mongoose.connect(
-  process.env.MONGODB_URI || "mongodb://heroku_cwf2cqkx:8vpi8pekalrvhlae96mahc4ktq@ds153494.mlab.com:53494/heroku_cwf2cqkx", {
+  mongoConnect, {
     useMongoClient: true
   }
 );
+
+const db = mongoose.connection;
+
+// Show any mongoose errors
+db.on("error", function (error) {
+  console.log("Mongoose Error: ", error);
+});
+
+// Once logged in to the db through mongoose, log a success message
+db.once("open", function () {
+  console.log(`Mongoose connection to ${mongoConnect} successful.`);
+});
 
 // Send every request to the React app
 // Define any API routes before this runs

@@ -15,6 +15,7 @@ class Articles extends Component {
     endyear: "",
     articles: [],
     savedarticles: [],
+    biodiversity: [],
     wordtoguess: "",
     displayedword: "",
     // This is the array of user entries
@@ -79,7 +80,7 @@ class Articles extends Component {
 
     guessList = guessList + userGuess + " ";
 
-    this.setState({userGuessesString: guessList})
+    this.setState({ userGuessesString: guessList })
   }
 
   switchOutUnderscores = (userGuess) => {
@@ -93,9 +94,9 @@ class Articles extends Component {
       let livesLeft = this.state.lives;
       livesLeft = livesLeft - 1;
 
-      this.setState({lives: livesLeft});
+      this.setState({ lives: livesLeft });
       this.checkforLoss(livesLeft);
-    
+
     }
 
     //If it is in the word, it will switch out the underscore with the userGuess.
@@ -126,10 +127,10 @@ class Articles extends Component {
   }
 
   checkforLoss = (lives) => {
-    if (lives === 0){
+    if (lives === 0) {
       let losses = this.state.losses;
 
-      this.setState({losses: losses + 1});
+      this.setState({ losses: losses + 1 });
       this.resetGame();
     }
   }
@@ -137,7 +138,7 @@ class Articles extends Component {
   checkForWin = (currentDisplay) => {
     if (currentDisplay.indexOf("_") === -1) {
       console.log("You win!")
-      this.setState({wins: this.state.wins +1})
+      this.setState({ wins: this.state.wins + 1 })
 
       this.resetGame()
     }
@@ -171,8 +172,34 @@ class Articles extends Component {
   }
 
   // Initial load of saved articles
-  componentDidMount() {
-    this.loadWordToGuess();
+  componentDidMount() { 
+    this.loadBiodiversity();
+    //this.loadWordToGuess();
+  };
+
+  // code to get biodiversity list
+  loadBiodiversity = () => {
+    API.getBiodiversity()
+      .then(
+      res => {
+        //console.log("biodiversity list incoming: " + JSON.stringify(res.data, null, 2))
+        let diverlist = res.data;
+        let namelist = [];
+
+        for (let n = 0; n< diverlist.length; n++){
+          // && namelist.indexOf(diverlist[n]["Common Name"] >= 0)
+          if (diverlist[n]["Category"] === "Animal"){
+            namelist.push(diverlist[n]["Common Name"].toLowerCase());
+          }
+        }
+
+        console.log(namelist.length);
+        this.setState({ biodiversity: namelist });
+        console.log("biodiversity list: " + JSON.stringify(this.state.biodiversity, null, 2));
+        this.loadWordToGuess();
+      })
+      // console.log(res.data.response.docs);
+      .catch(err => console.log(err));
   };
 
 
@@ -189,7 +216,8 @@ class Articles extends Component {
   //loads a random entry from a selected category
   //for testing purposes now, using a static entry
   loadWordToGuess = () => {
-    let words = ["flamingo", "ocelot", "pistol shrimp", "cockatiel"]/*["pistol shrimp"]*/
+    //let words = ["flamingo", "ocelot", "pistol shrimp", "cockatiel"]/*["pistol shrimp"]*/
+    let words = this.state.biodiversity
     let word = words[Math.floor(Math.random() * words.length)]
     let wordArray = word.split("");
     console.log(wordArray);
@@ -198,11 +226,29 @@ class Articles extends Component {
 
     // fill the currentlyPicked array with either underscores or spaces
     for (let i = 0; i < wordArray.length; i++) {
-      if (wordArray[i] !== " ") {
+      switch (wordArray[i] !== " " || wordArray[i] !== "-" || wordArray[i] !== "'" ){
+        case wordArray[i] === "'":
+          currentlyPicked.push("'")
+          break;
+
+        case wordArray[i] === "-":
+          currentlyPicked.push("-")
+          break;
+
+        case wordArray[i] === " ":
+          currentlyPicked.push(" ")
+          break;
+
+        default:
         currentlyPicked.push("_")
-      } else {
-        currentlyPicked.push(" ")
       }
+
+
+      // if (wordArray[i] !== " ") {
+      //   currentlyPicked.push("_")
+      // } else {
+      //   currentlyPicked.push(" ")
+      // }
     }
 
     console.log(currentlyPicked)
